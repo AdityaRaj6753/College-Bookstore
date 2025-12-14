@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Book Store</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- PROFESSIONAL STYLING START --- */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f2f5; /* Light Grey Background */
+        }
+
+        /* Navbar Design */
+        .navbar-custom {
+            background-color: #6f42c1; /* Purple Color */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Search Box Container */
+        .search-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-top: -30px; /* Thoda upar overlap karega styling ke liye */
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Card Design (3D Look) */
+        .card {
+            border: none;
+            border-radius: 15px;
+            background: white;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-10px); /* Hover karne par upar uthega */
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        /* Image Styling - Book Cover Fit */
+        .card img {
+            height: 280px;
+            width: 100%;
+            object-fit: cover; /* Photo khichegi nahi */
+            object-position: top;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        /* Price Badge */
+        .price-badge {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+        }
+        /* --- STYLING END --- */
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom py-3">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-book-reader me-2"></i> College Book Store
+            </a>
+            
+            <div class="d-flex align-items-center gap-3">
+                <% if(typeof user !== 'undefined' && user) { %>
+                    <span class="text-white fw-bold">Hello, <%= user.name %>! 👋</span>
+                    <a href="/logout" class="btn btn-light btn-sm fw-bold text-danger">Logout <i class="fas fa-sign-out-alt"></i></a>
+                <% } else { %>
+                    <a href="/login" class="btn btn-light btn-sm fw-bold">Login</a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+    <div style="background-color: #6f42c1; height: 80px; width: 100%;"></div>
+
+    <div class="container mb-5">
+        
+        <div class="search-container d-flex flex-wrap justify-content-between align-items-center mb-5">
+            <form action="/search" method="GET" class="d-flex flex-grow-1 me-md-4 mb-3 mb-md-0">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span>
+                    <input class="form-control form-control-lg border-0 bg-light" type="text" name="q" placeholder="Search by Book Name or Author...">
+                    <button class="btn btn-dark px-4 fw-bold" type="submit">Search</button>
+                </div>
+            </form>
+            <a href="/add-book" class="btn btn-success btn-lg fw-bold shadow-sm rounded-pill px-4">
+                + Sell Book 💰
+            </a>
+        </div>
+
+        <div class="row g-4">
+            <% if(books.length > 0) { %>
+                <% books.forEach(book => { %>
+                    <div class="col-md-4 col-lg-3">
+                        <div class="card h-100">
+                            <img src="<%= book.image_url %>" class="card-img-top" alt="<%= book.name %>">
+                            
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title fw-bold text-dark mb-1"><%= book.name %></h5>
+                                <p class="text-muted small mb-3">by <%= book.author %></p>
+                                
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <span class="price-badge">₹<%= book.price %></span>
+                                    <small class="text-secondary"><i class="fas fa-clock"></i> Just now</small>
+                                </div>
+
+                                <div class="mt-auto">
+                                    <% if(typeof currentUserId !== 'undefined' && book.user_id == currentUserId) { %>
+                                        <div class="d-flex gap-2">
+                                            <a href="/edit/<%= book.id %>" class="btn btn-warning btn-sm flex-grow-1 fw-bold text-dark">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <form action="/delete/<%= book.id %>" method="POST" onsubmit="return confirm('Pakka delete karna hai?')" class="flex-grow-1">
+                                                <button type="submit" class="btn btn-danger btn-sm w-100 fw-bold">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    <% } else { %>
+                                        <a href="https://wa.me/?text=Hi, I am interested in buying your book: <%= book.name %> (Price: ₹<%= book.price %>)" target="_blank" class="btn btn-outline-primary w-100 fw-bold">
+                                            <i class="fab fa-whatsapp"></i> Chat with Seller
+                                        </a>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="col-12 text-center mt-5 py-5">
+                    <i class="fas fa-book-open fa-4x text-muted mb-3"></i>
+                    <h3 class="text-secondary fw-bold">No books found yet.</h3>
+                    <p class="text-muted">Be the first one to sell a book here!</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

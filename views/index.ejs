@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Store | Dashboard</title>
+    <style>
+        /* --- 1. RESET & BASICS --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f3f4f6;
+            height: 100vh;
+            display: flex;
+            overflow: hidden; /* Scrollbar sirf content area me hoga */
+        }
+
+        /* --- 2. SIDEBAR (Colorful Left Panel) --- */
+        .sidebar {
+            width: 280px;
+            /* 🔥 SAME GRADIENT AS ADD BOOK PAGE */
+            background: linear-gradient(135deg, #4f46e5 0%, #9333ea 50%, #ec4899 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .logo { font-size: 24px; font-weight: 800; margin-bottom: 40px; display: flex; align-items: center; gap: 10px; }
+        
+        /* User Profile in Sidebar */
+        .user-profile {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .user-avatar {
+            width: 40px; height: 40px;
+            background: white; color: #4f46e5;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 18px;
+        }
+        .user-info div { font-size: 14px; font-weight: 600; }
+        .user-info span { font-size: 12px; opacity: 0.8; }
+
+        /* Navigation Links */
+        .nav-links { list-style: none; flex-grow: 1; }
+        .nav-links li { margin-bottom: 10px; }
+        
+        .nav-links a {
+            display: flex; align-items: center; gap: 12px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            padding: 12px 15px;
+            border-radius: 10px;
+            transition: 0.3s;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        
+        .nav-links a:hover, .nav-links a.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        /* Sell Button */
+        .btn-sell {
+            background: white;
+            color: #4f46e5;
+            text-decoration: none;
+            padding: 14px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: 0.3s;
+            display: block;
+            margin-top: 20px;
+        }
+        .btn-sell:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+
+        /* --- 3. MAIN CONTENT (Right Side) --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto; /* Scroll sirf yahan hoga */
+            padding: 30px;
+        }
+
+        /* Top Header Area */
+        .header-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title h2 { color: #1f2937; font-size: 28px; font-weight: 700; }
+        .page-title p { color: #6b7280; font-size: 14px; }
+
+        /* Modern Search Bar */
+        .search-wrapper {
+            position: relative;
+            width: 350px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 2px solid #e5e7eb;
+            border-radius: 50px;
+            outline: none;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+        .search-input:focus { border-color: #4f46e5; background: white; box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
+        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); width: 18px; fill: #9ca3af; }
+
+        /* Filter Categories (Chips) */
+        .filters { display: flex; gap: 10px; margin-bottom: 30px; overflow-x: auto; padding-bottom: 5px; }
+        .filter-chip {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            text-decoration: none;
+            color: #4b5563;
+            font-size: 13px;
+            font-weight: 500;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .filter-chip:hover { background: #f3f4f6; border-color: #d1d5db; }
+        .filter-chip.active { background: #4f46e5; color: white; border-color: #4f46e5; }
+
+        /* --- 4. BOOK GRID --- */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 25px;
+            padding-bottom: 50px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s ease;
+            position: relative;
+            border: 1px solid #f0f0f0;
+            display: flex; flex-direction: column;
+        }
+
+        .card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); border-color: #e5e7eb; }
+
+        /* Image Area */
+        .card-img-top {
+            height: 180px;
+            width: 100%;
+            object-fit: cover;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        /* Sold Out Logic */
+        .card.sold .card-img-top { filter: grayscale(100%); opacity: 0.7; }
+        .sold-badge {
+            position: absolute; top: 12px; right: 12px;
+            background: #ef4444; color: white;
+            padding: 4px 10px; border-radius: 6px;
+            font-size: 11px; font-weight: 800; letter-spacing: 0.5px;
+        }
+        .branch-badge {
+            position: absolute; top: 12px; left: 12px;
+            background: rgba(0,0,0,0.6); color: white;
+            padding: 4px 8px; border-radius: 6px;
+            font-size: 10px; text-transform: uppercase;
+            backdrop-filter: blur(4px);
+        }
+
+        /* Content Area */
+        .card-body { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+        
+        .book-title { font-size: 16px; font-weight: 700; color: #1f2937; margin-bottom: 5px; line-height: 1.4; }
+        .book-author { font-size: 13px; color: #6b7280; margin-bottom: 15px; }
+        
+        .price { font-size: 18px; font-weight: 800; color: #10b981; }
+        
+        /* Buttons */
+        .btn-whatsapp {
+            margin-top: auto;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            background: #f0fdf4; color: #16a34a;
+            border: 1px solid #dcfce7;
+            padding: 10px; border-radius: 8px;
+            text-decoration: none; font-size: 13px; font-weight: 600;
+            transition: 0.2s;
+        }
+        .btn-whatsapp:hover { background: #25D366; color: white; border-color: #25D366; }
+        
+        .owner-actions { margin-top: auto; display: flex; gap: 10px; }
+        .btn-action {
+            flex: 1; padding: 10px; border: none; border-radius: 8px;
+            cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s;
+        }
+        .btn-mark { background: #fff7ed; color: #ea580c; border: 1px solid #ffedd5; }
+        .btn-mark:hover { background: #ea580c; color: white; }
+        .btn-delete { background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; }
+        .btn-delete:hover { background: #dc2626; color: white; }
+
+        /* --- 5. MOBILE RESPONSIVE --- */
+        @media (max-width: 768px) {
+            body { flex-direction: column; overflow: auto; }
+            .sidebar { width: 100%; padding: 20px; border-radius: 0 0 20px 20px; }
+            .logo { justify-content: center; }
+            .nav-links { display: none; } /* Hide extra links on mobile to save space */
+            .header-area { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .search-wrapper { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo">
+            <span>📚 Campus Store</span>
+        </div>
+
+        <div class="user-profile">
+            <div class="user-avatar"><%= user.charAt(0).toUpperCase() %></div>
+            <div class="user-info">
+                <div><%= user %></div>
+                <span>Student</span>
+            </div>
+        </div>
+
+        <ul class="nav-links">
+            <li><a href="/" class="<%= !currentCategory || currentCategory == 'All' ? 'active' : '' %>">🏠 Dashboard</a></li>
+            <li><a href="/profile">👤 My Profile</a></li>
+            <li><a href="/logout" style="color: rgba(255,200,200,0.9);">🚪 Logout</a></li>
+        </ul>
+
+        <div style="margin-top: auto;">
+            <p style="font-size: 12px; opacity: 0.7; margin-bottom: 5px;">Have an old book?</p>
+            <a href="/add" class="btn-sell">+ Sell Book Now</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        
+        <div class="header-area">
+            <div class="page-title">
+                <h2>Browse Books</h2>
+                <p>Find notes and books from your seniors.</p>
+            </div>
+            
+            <form action="/" method="GET" class="search-wrapper">
+                <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                <input type="text" name="search" class="search-input" placeholder="Search by title, author..." value="<%= searchQuery || '' %>">
+            </form>
+        </div>
+
+        <div class="filters">
+            <a href="/" class="filter-chip <%= currentCategory == 'All' ? 'active' : '' %>">All</a>
+            <a href="/?category=CSE" class="filter-chip <%= currentCategory == 'CSE' ? 'active' : '' %>">💻 CSE</a>
+            <a href="/?category=Mechanical" class="filter-chip <%= currentCategory == 'Mechanical' ? 'active' : '' %>">⚙️ Mechanical</a>
+            <a href="/?category=Civil" class="filter-chip <%= currentCategory == 'Civil' ? 'active' : '' %>">🏗️ Civil</a>
+            <a href="/?category=Electrical" class="filter-chip <%= currentCategory == 'Electrical' ? 'active' : '' %>">⚡ Electrical</a>
+            <a href="/?category=BBA_MBA" class="filter-chip <%= currentCategory == 'BBA_MBA' ? 'active' : '' %>">📊 BBA/MBA</a>
+        </div>
+
+        <div class="grid-container">
+            <% if (books.length === 0) { %>
+                <div style="grid-column: 1/-1; text-align: center; color: #9ca3af; padding: 50px;">
+                    <h3>No books found.</h3>
+                    <p>Be the first to list one!</p>
+                </div>
+            <% } %>
+
+            <% books.forEach(book => { %>
+                <div class="card <%= book.status == 'sold' ? 'sold' : '' %>">
+                    
+                    <div class="branch-badge"><%= book.branch || 'Gen' %></div>
+                    <% if (book.status == 'sold') { %> <div class="sold-badge">SOLD</div> <% } %>
+
+                    <% if(book.image) { %>
+                        <img src="/uploads/<%= book.image %>" class="card-img-top">
+                    <% } else { %>
+                        <img src="https://via.placeholder.com/300x200?text=No+Preview" class="card-img-top">
+                    <% } %>
+
+                    <div class="card-body">
+                        <div class="book-title"><%= book.name %></div>
+                        <div class="book-author">By <%= book.author %></div>
+
+                        <% if (book.status == 'sold') { %>
+                            <div style="color: #ef4444; font-weight: bold; margin-top: auto; font-size: 14px;">⛔ Sold Out</div>
+                        <% } else { %>
+                            <div class="price">₹<%= book.price %></div>
+                            
+                            <% if (currentUserId != book.user_id) { %>
+                                <a href="https://wa.me/91<%= book.contact_number %>?text=Hi, I am interested in: <%= book.name %>" target="_blank" class="btn-whatsapp">
+                                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c1.001.574 1.944.869 3.106.869 3.179 0 5.766-2.587 5.766-5.766.001-3.181-2.586-5.768-5.766-5.768zm7.108 5.769c0 3.92-3.191 7.112-7.11 7.112-1.336 0-2.436-.363-3.486-.921l-3.929 1.03 1.049-3.829c-.66-1.127-1.077-2.366-1.077-3.693 0-3.921 3.192-7.112 7.112-7.112 3.921 0 7.113 3.192 7.113 7.112l.328 2.112.328-2.112zm-3.821 2.053c-.15-.075-.891-.44-1.029-.49-.138-.051-.239-.077-.339.074-.101.151-.39.489-.478.59-.088.1-.176.113-.326.038-.15-.075-.634-.233-1.207-.744-.451-.403-.756-.9-.844-1.051-.088-.151-.009-.233.066-.307.068-.067.151-.176.227-.264.075-.088.101-.151.151-.251.05-.101.025-.189-.013-.264-.038-.075-.339-817-.465-1.119-.122-.293-.246-.253-.339-.258l-.289-.005c-.1 0-.263.038-.401.189-.138.151-.527.515-.527 1.256 0 .741.539 1.458.614 1.558.075.1 1.061 1.62 2.57 2.274 1.509.654 1.509.436 1.785.41.276-.026.891-.364 1.016-.716.126-.352.126-.654.088-.716-.037-.063-.138-.101-.288-.176z"/></svg>
+                                    Chat to Buy
+                                </a>
+                            <% } else { %>
+                                <div style="margin-top:auto; font-size:12px; color:#aaa; text-align:center;">Your Listing</div>
+                            <% } %>
+                        <% } %>
+
+                        <% if (currentUserId == book.user_id) { %>
+                            <div class="owner-actions">
+                                <% if (book.status != 'sold') { %>
+                                    <form action="/mark-sold/<%= book.id %>" method="POST" style="flex:1;">
+                                        <button type="submit" class="btn-action btn-mark">Mark Sold</button>
+                                    </form>
+                                <% } %>
+                                <form action="/delete/<%= book.id %>" method="POST" style="flex:1;">
+                                    <button type="submit" class="btn-action btn-delete">Delete</button>
+                                </form>
+                            </div>
+                        <% } %>
+
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+
+</body>
+</html>

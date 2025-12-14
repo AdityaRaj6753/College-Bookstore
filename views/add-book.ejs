@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sell Book | Colorful Design</title>
+    <style>
+        /* --- 1. RESET --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            background: #f0f2f5; /* Light background for contrast */
+        }
+
+        /* --- 2. SPLIT LAYOUT CONTAINER --- */
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+        }
+
+        /* --- 3. LEFT SIDE (MULTI-COLOR + TEXT) --- */
+        .left-panel {
+            flex: 1.1; /* Thoda zyada jagah lega */
+            
+            /* 🔥 MULTI-COLOR GRADIENT (OFFLINE) */
+            background: linear-gradient(135deg, #4f46e5 0%, #9333ea 50%, #ec4899 100%);
+            
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* Decorative Circles (Background Design) */
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .c1 { width: 300px; height: 300px; top: -50px; left: -50px; }
+        .c2 { width: 200px; height: 200px; bottom: 50px; right: -50px; }
+        .c3 { width: 100px; height: 100px; top: 40%; right: 20%; opacity: 0.5; }
+
+        /* Left Content Text */
+        .left-content {
+            position: relative;
+            z-index: 2;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .tagline {
+            background: rgba(255, 255, 255, 0.2);
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .left-content h1 {
+            font-size: 48px;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .left-content p {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 40px;
+            max-width: 450px;
+            line-height: 1.6;
+        }
+
+        /* Features List */
+        .features {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .icon-box {
+            width: 40px; height: 40px;
+            background: white;
+            color: #9333ea;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+            font-size: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* --- 4. RIGHT SIDE (FORM) --- */
+        .right-panel {
+            flex: 0.9;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .form-wrapper { width: 100%; max-width: 450px; }
+
+        h2 { color: #111; font-size: 30px; font-weight: 800; margin-bottom: 5px; }
+        .subtitle { color: #666; margin-bottom: 30px; font-size: 14px; }
+
+        /* Inputs */
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 13px; color: #333; }
+        
+        input, select {
+            width: 100%; padding: 14px;
+            border: 2px solid #eee; border-radius: 10px;
+            font-size: 15px; background: #fafafa;
+            transition: 0.3s; outline: none;
+        }
+        input:focus, select:focus { border-color: #9333ea; background: #fff; }
+
+        .row { display: flex; gap: 15px; }
+        .col { flex: 1; }
+
+        /* File Upload */
+        .file-box {
+            border: 2px dashed #ccc; padding: 20px;
+            text-align: center; border-radius: 10px;
+            cursor: pointer; background: #f9f9f9; position: relative;
+        }
+        .file-box:hover { border-color: #9333ea; background: #f3e8ff; }
+
+        button {
+            width: 100%; padding: 16px;
+            background: linear-gradient(to right, #4f46e5, #9333ea);
+            color: white; border: none; border-radius: 10px;
+            font-size: 16px; font-weight: bold; cursor: pointer;
+            transition: 0.3s; margin-top: 10px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(147, 51, 234, 0.3); }
+
+        .cancel { display: block; text-align: center; margin-top: 20px; color: #888; text-decoration: none; font-size: 14px; }
+
+        /* --- 5. MOBILE RESPONSIVE --- */
+        @media (max-width: 900px) {
+            .left-panel { display: none; } /* Mobile pe colorful side gayab */
+            .right-panel { flex: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div class="left-panel">
+            <div class="circle c1"></div>
+            <div class="circle c2"></div>
+            <div class="circle c3"></div>
+
+            <div class="left-content">
+                <div class="tagline">Welcome to Campus Store</div>
+                <h1>Turn Your Books<br>Into Cash. 📚💸</h1>
+                <p>Helping students save money. List your old semester books today and connect with juniors instantly.</p>
+
+                <div class="features">
+                    <div class="feature-item">
+                        <div class="icon-box">⚡</div>
+                        <div>
+                            <strong>Fast Selling</strong><br>
+                            <span style="font-size: 13px; opacity: 0.8;">Most books sell within 24 hours.</span>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon-box">💬</div>
+                        <div>
+                            <strong>Direct Chat</strong><br>
+                            <span style="font-size: 13px; opacity: 0.8;">Connect via WhatsApp instantly.</span>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon-box">🔒</div>
+                        <div>
+                            <strong>100% Free</strong><br>
+                            <span style="font-size: 13px; opacity: 0.8;">No hidden charges or commissions.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <div class="form-wrapper">
+                <h2>Sell a Book</h2>
+                <p class="subtitle">Fill in the details to create a listing.</p>
+
+                <form action="/save-book" method="POST" enctype="multipart/form-data">
+                    
+                    <div class="form-group">
+                        <label>Book Name</label>
+                        <input type="text" name="name" placeholder="E.g. Database Systems" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col form-group">
+                            <label>Author</label>
+                            <input type="text" name="author" placeholder="E.g. Korth" required>
+                        </div>
+                        <div class="col form-group">
+                            <label>Price (₹)</label>
+                            <input type="number" name="price" placeholder="450" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>WhatsApp Number</label>
+                        <input type="number" name="contact" placeholder="9876543210" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Branch / Category</label>
+                        <select name="branch" required>
+                            <option value="" disabled selected>Select Branch</option>
+                            <option value="General">General / Common</option>
+                            <option value="CSE">Computer Science (CSE)</option>
+                            <option value="Mechanical">Mechanical</option>
+                            <option value="Civil">Civil</option>
+                            <option value="Electrical">Electrical</option>
+                            <option value="BBA_MBA">BBA / MBA</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Book Photo</label>
+                        <div class="file-box">
+                            <span id="ftext" style="color:#666; font-size:14px;">Click to Upload Image</span>
+                            <input type="file" name="image" required accept="image/*" 
+                                   style="position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;"
+                                   onchange="document.getElementById('ftext').innerText = this.files[0].name">
+                        </div>
+                    </div>
+
+                    <button type="submit">Publish Listing</button>
+                    <a href="/" class="cancel">Cancel & Go Back</a>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
