@@ -1,5 +1,5 @@
 // 1. Zaroori Packages Import karna
-require('dotenv').config(); // Password chhupane ke liye
+require('dotenv').config(); 
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
@@ -12,38 +12,46 @@ const app = express();
 // 2. Settings aur Middleware
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static('public')); // CSS/JS ke liye
-app.use('/uploads', express.static('uploads')); // Photos dikhane ke liye
+app.use(express.static('public')); 
+app.use('/uploads', express.static('uploads')); 
 
-// Session Setup (Login yaad rakhne ke liye)
+// Session Setup
 app.use(session({
-    secret: 'secret_key',
+    secret: process.env.SESSION_SECRET || 'secret_key', // Secure key
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: true,
+    cookie: { secure: false } // Render par agar HTTPS issue aaye to isse handle karenge
 }));
 
-// 3. Database Connection (Secure Mode)
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: process.env.DB_PASSWORD, // ✅ Ye password ab .env file se lega
-    database: 'college_bookstore'
+// 3. Database Connection (Cloud Ready ☁️)
+// Hum 'createPool' use karenge kyunki Internet par connection toot sakta hai, ye usse sambhal lega.
+const db = mysql.createPool({
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'college_bookstore',
+    port: process.env.DB_PORT || 3306,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
-db.connect((err) => {
+// Pool connection check
+db.getConnection((err, connection) => {
     if (err) {
         console.log("❌ Database Connection Failed!");
         console.error(err);
     } else {
         console.log("✅ MySQL Connected Successfully...");
+        connection.release();
     }
 });
 
-// 4. Photo Upload Setup (Multer)
+// 4. Photo Upload Setup
 const storage = multer.diskStorage({
     destination: './uploads/',
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname)); // Har photo ka naam unique hoga
+        cb(null, Date.now() + path.extname(file.originalname)); 
     }
 });
 const upload = multer({ storage: storage });
@@ -69,7 +77,8 @@ app.post('/signup', (req, res) => {
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
     db.query("SELECT * FROM users WHERE email = ? AND password = ?", [email, password], (err, result) => {
-        if (result.length > 0) {
+        if (err) { console.log(err); res.send("Error"); }
+        else if (result.length > 0) {
             req.session.userId = result[0].id;
             req.session.userName = result[0].name;
             res.redirect('/');
@@ -79,26 +88,24 @@ app.post('/login', (req, res) => {
     });
 });
 
-// 🏠 HOME PAGE (Dashboard with Search & Categories)
+// 🏠 HOME PAGE
 app.get('/', (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
 
     let sql = "SELECT * FROM books";
     let queryParams = [];
 
-    // Agar Search kiya hai
     if (req.query.search) {
         sql += " WHERE name LIKE ? OR author LIKE ?";
         queryParams = [`%${req.query.search}%`, `%${req.query.search}%`];
     } 
-    // Agar Category select ki hai
     else if (req.query.category && req.query.category !== 'All') {
         sql += " WHERE branch = ?";
         queryParams = [req.query.category];
     }
 
     db.query(sql, queryParams, (err, books) => {
-        if (err) throw err;
+        if (err) { console.log(err); return res.send("Error fetching books"); }
         res.render('index', { 
             books: books, 
             user: req.session.userName, 
@@ -113,9 +120,10 @@ app.get('/', (req, res) => {
 app.get('/profile', (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
     
-    // User ki details aur uski upload ki hui books laao
     db.query("SELECT * FROM users WHERE id = ?", [req.session.userId], (err, user) => {
+        if (err) return console.log(err);
         db.query("SELECT * FROM books WHERE user_id = ?", [req.session.userId], (err, books) => {
+            if (err) return console.log(err);
             res.render('profile', { user: user[0], books: books });
         });
     });
@@ -127,7 +135,7 @@ app.get('/add', (req, res) => {
     res.render('add-book');
 });
 
-// 💾 SAVE BOOK (Upload Logic)
+// 💾 SAVE BOOK
 app.post('/save-book', upload.single('image'), (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
     
@@ -146,7 +154,7 @@ app.post('/save-book', upload.single('image'), (req, res) => {
     });
 });
 
-// 🗑️ DELETE BOOK (Sirf apni book delete kar payega)
+// 🗑️ DELETE BOOK
 app.post('/delete/:id', (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
     db.query("DELETE FROM books WHERE id = ? AND user_id = ?", [req.params.id, req.session.userId], (err) => {
@@ -164,8 +172,8 @@ app.post('/mark-sold/:id', (req, res) => {
     });
 });
 
-// 🚀 SERVER START
-const PORT = 3000;
+// 🚀 SERVER START (Updated for Cloud)
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
 });
